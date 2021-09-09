@@ -1,22 +1,38 @@
-import requests
+from datetime import datetime
+
 import pandas as pd
-import os
-from utils import flatten_nested_json_df
-from errors import RetrieveDataError
+
+from libi.utils import get_data, convert_datetime_to_unix_milliseconds
 
 
-BASE_URL = 'https://api.cobli.co/'
+def get_stops_driver_data(fleet_data: dict, start_datetime: datetime, end_datetime: datetime):
+    query_params = {
+        'begin': convert_datetime_to_unix_milliseconds(start_datetime),
+        'end': convert_datetime_to_unix_milliseconds(end_datetime),
+        'tz': 'America/Sao_Paulo',
+    }
+    return get_data(fleet_data, 'herbie-1.1/stats/stops/driver', query_params)
 
 
-def get_devices(api_key, current_timestamp, fleet_name=''):
-    headers = {
-        'Cobli-Api-Key': api_key,
-        'Content-Type': 'application/json'
+def get_devices_data(fleet_data: dict):
+    return get_data(fleet_data, 'herbie-1.1/dash/device', {})
+
+
+def get_pocs_data(fleet_data: dict, start_datetime: datetime, end_datetime: datetime):
+    query_params = {
+        'startTimestamp': convert_datetime_to_unix_milliseconds(start_datetime),
+        'endTimestamp': convert_datetime_to_unix_milliseconds(end_datetime),
+        'limit': 1,
+        'offset': 0,
     }
 
-    response = requests.get(f'{BASE_URL}herbie-1.1/dash/device', headers=headers)
+    dataframe = pd.DataFrame()
+    while True:
+        _df = get_data(fleet_data, 'herbie-1.1/planning/pocs', query_params)
+        if _df.empty:
+            break
 
-    if response.status_code != 200:
-        raise RetrieveDataError("Não foi possível retornar os dados")
+        dataframe = dataframe.append(_df)
+        query_params['offset'] += 1
 
-    return flatten_nested_json_df(pd.DataFrame(response.json()))
+    return dataframe
