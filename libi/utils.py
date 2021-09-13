@@ -49,8 +49,6 @@ def get_specific_data(
     if len(resource_url_query_params.keys()) > 0:
         query_params = f'?{urlencode(resource_url_query_params)}'
 
-    print(f'{BASE_URL}{resource_url}{query_params}')
-
     response = requests.get(f'{BASE_URL}{resource_url}{query_params}', headers=headers)
 
     if response.status_code != 200:
@@ -60,7 +58,6 @@ def get_specific_data(
         )
 
     if 'application/json' in response.headers['content-type']:
-        print('É JSON!')
         response_dict = response.json()
         response_dict['fleet_name'] = fleet_name
         dataframe = pd.DataFrame(response_dict)
