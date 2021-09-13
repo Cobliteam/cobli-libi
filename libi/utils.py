@@ -1,5 +1,5 @@
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from urllib.parse import urlencode
 
 import pandas as pd
@@ -14,6 +14,7 @@ def get_data(
         fleet_data: dict,
         resource_url: str,
         resource_url_query_params: dict,
+        worksheet_index=0
 ) -> pd.DataFrame:
     """
     Return an unified pandas dataframe based on a given resource for specified fleets
@@ -21,11 +22,13 @@ def get_data(
     :param fleet_data: dict {'fleet_name': 'api_key'}
     :param resource_url: str - API resource endpoint url
     :param resource_url_query_params: dict - API resource query params
+    :param worksheet_index: what worksheet to read (if applies)
     :return: pd.DataFrame
     """
     dataframe = pd.DataFrame()
     for fleet_name, api_key in fleet_data.items():
-        dataframe = dataframe.append(get_specific_data(fleet_name, api_key, resource_url, resource_url_query_params))
+        _df = get_specific_data(fleet_name, api_key, resource_url, resource_url_query_params, worksheet_index)
+        dataframe = dataframe.append(_df)
     return dataframe
 
 
@@ -33,7 +36,8 @@ def get_specific_data(
         fleet_name: str,
         api_key: str,
         resource_url: str,
-        resource_url_query_params: dict
+        resource_url_query_params: dict,
+        worksheet_index=0
 ) -> pd.DataFrame:
     """Return a specific pandas dataframe for a given resource of a specified fleet"""
     headers = {
@@ -41,10 +45,13 @@ def get_specific_data(
         'Content-Type': 'application/json'
     }
 
-    query_params = urlencode(resource_url_query_params)
-    response = requests.get(f'{BASE_URL}{resource_url}?{query_params}', headers=headers)
+    query_params = ''
+    if len(resource_url_query_params.keys()) > 0:
+        query_params = f'?{urlencode(resource_url_query_params)}'
 
-    print(f'{resource_url}?{query_params}')
+    print(f'{BASE_URL}{resource_url}{query_params}')
+
+    response = requests.get(f'{BASE_URL}{resource_url}{query_params}', headers=headers)
 
     if response.status_code != 200:
         raise RetrieveDataError(
@@ -52,9 +59,16 @@ def get_specific_data(
             f"para o recurso {resource_url}. Status: {response.status_code}"
         )
 
-    response_dict = response.json()
-    response_dict['fleet_name'] = fleet_name
-    dataframe = pd.DataFrame(response_dict)
+    if 'application/json' in response.headers['content-type']:
+        print('É JSON!')
+        response_dict = response.json()
+        response_dict['fleet_name'] = fleet_name
+        dataframe = pd.DataFrame(response_dict)
+    elif 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' in response.headers['content-type']:
+        dataframe = pd.read_excel(response.content, worksheet_index)
+        dataframe['fleet_name'] = fleet_name
+    else:
+        dataframe = pd.DataFrame()
 
     if dataframe.empty:
         return dataframe
@@ -100,3 +114,32 @@ def flatten_nested_json_df(df):
 
 def convert_datetime_to_unix_milliseconds(date_to_convert: datetime) -> int:
     return int(time.mktime(date_to_convert.timetuple())) * 1000
+
+
+def split_intervals(start_datetime, end_datetime, days_per_interval=30):
+    interval = end_datetime - start_datetime
+    days = interval.days
+
+    number_of_intervals = days // days_per_interval
+    if number_of_intervals < 1:
+        return [(start_datetime, end_datetime), ]
+
+    extra_days = days % days_per_interval
+    if extra_days > 0:
+        number_of_intervals += 1
+
+    intervals_list = list()
+    for i in range(number_of_intervals):
+        if len(intervals_list) == 0:
+            interval_end = end_datetime
+            interval_start = interval_end - timedelta(days=days_per_interval - 1)
+        elif len(intervals_list) == number_of_intervals - 1:
+            interval_end = intervals_list[-1][0] - timedelta(days=1)
+            interval_start = start_datetime
+        else:
+            interval_end = intervals_list[-1][0] - timedelta(days=1)
+            interval_start = interval_end - timedelta(days=days_per_interval - 1)
+
+        intervals_list.append((interval_start, interval_end))
+
+    return intervals_list
