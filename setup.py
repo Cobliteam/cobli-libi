@@ -1,13 +1,17 @@
-#!/usr/bin/env python
+import pathlib
+from setuptools import setup
 
-from distutils.core import setup
+HERE = pathlib.Path(__file__).parent
+README = (HERE / 'README.md').read_text()
 
 setup(
     name='cobli-libi',
-    version='0.0.1',
-    description='Bi',
-    author='Cobli Engineering',
-    author_email='marcus@cobli.co',
+    version='0.0.2',
+    description='Generate dataframes from Cobli public API',
+    long_description=README,
+    long_description_content_type='text/markdown',
+    author='Marcus Beckenkamp',
+    author_email='mvbeck@gmai.com',
     url='https://docs.cobli.co',
     packages=['libi', ],
 )
