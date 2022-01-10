@@ -4,7 +4,7 @@ metadata:
   name: cobli-libi
   description: Generate dataframe using Cobli's public API as data source.
   annotations:
-    'backstage.io/kubernetes-label-selector': 'app=cobli-libi-app'
+    'backstage.io/kubernetes-label-selector': 'tags.datadoghq.com/service=cobli-libi'
   tags:
     - python
 spec:
