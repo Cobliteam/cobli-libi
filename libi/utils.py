@@ -113,7 +113,7 @@ def convert_datetime_to_unix_milliseconds(date_to_convert: datetime) -> int:
     return int(time.mktime(date_to_convert.timetuple())) * 1000
 
 
-def split_intervals(start_datetime, end_datetime, days_per_interval=30):
+def split_intervals(start_datetime, end_datetime, days_per_interval=5):
     interval = end_datetime - start_datetime
     days = interval.days
 
