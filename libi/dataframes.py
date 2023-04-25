@@ -9,11 +9,17 @@ PAGINATION_STEP = 50
 
 
 def get_devices_data(fleet_data: dict):
-    return get_data(fleet_data, 'herbie-1.1/dash/device', {})
+    query_params = {
+        'utmSource': 'PowerBI',
+    }
+    return get_data(fleet_data, 'herbie-1.1/dash/device', query_params)
 
 
 def get_checklist_data(fleet_data: dict):
-    return get_data(fleet_data, 'checklists', {})
+    query_params = {
+        'utmSource': 'PowerBI',
+    }
+    return get_data(fleet_data, 'checklists', query_params)
 
 
 def get_pocs_data(fleet_data: dict, start_datetime: datetime, end_datetime: datetime):
@@ -24,6 +30,7 @@ def get_pocs_data(fleet_data: dict, start_datetime: datetime, end_datetime: date
             'endTimestamp': convert_datetime_to_unix_milliseconds(interval_end),
             'limit': PAGINATION_STEP,
             'offset': 0,
+            'utmSource': 'PowerBI',
         }
 
         dataframe = pd.DataFrame()
@@ -49,6 +56,7 @@ def get_costs_data(fleet_data: dict, start_datetime: datetime, end_datetime: dat
             'begin': convert_datetime_to_unix_milliseconds(interval_start),
             'end': convert_datetime_to_unix_milliseconds(interval_end),
             'tz': 'America/Sao_Paulo',
+            'utmSource': 'PowerBI',
         }
         _df = get_data(fleet_data, 'herbie-1.1/costs/report', query_params)
         final_dataframe = final_dataframe.append(_df)
@@ -62,6 +70,7 @@ def get_incidents_data(fleet_data: dict, start_datetime: datetime, end_datetime:
             'begin': convert_datetime_to_unix_milliseconds(interval_start),
             'end': convert_datetime_to_unix_milliseconds(interval_end),
             'tz': 'America/Sao_Paulo',
+            'utmSource': 'PowerBI',
         }
         _df = get_data(fleet_data, 'herbie-1.1/stats/incidents/report', query_params)
         final_dataframe = final_dataframe.append(_df)
@@ -75,6 +84,7 @@ def get_vehicle_performance_data(fleet_data: dict, start_datetime: datetime, end
             'begin': convert_datetime_to_unix_milliseconds(interval_start),
             'end': convert_datetime_to_unix_milliseconds(interval_end),
             'tz': 'America/Sao_Paulo',
+            'utmSource': 'PowerBI',
         }
         _df = get_data(fleet_data, 'herbie-1.1/stats/performance/vehicle/report', query_params, worksheet_index=2)
         final_dataframe = final_dataframe.append(_df)
@@ -88,6 +98,7 @@ def get_driver_performance_data(fleet_data: dict, start_datetime: datetime, end_
             'begin': convert_datetime_to_unix_milliseconds(interval_start),
             'end': convert_datetime_to_unix_milliseconds(interval_end),
             'tz': 'America/Sao_Paulo',
+            'utmSource': 'PowerBI',
         }
         _df = get_data(fleet_data, 'herbie-1.1/stats/performance/driver/report', query_params, worksheet_index=2)
         final_dataframe = final_dataframe.append(_df)

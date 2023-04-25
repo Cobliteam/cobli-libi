@@ -6,7 +6,7 @@ README = (HERE / 'README.md').read_text()
 
 setup(
     name='cobli-libi',
-    version='0.0.3',
+    version='0.0.6',
     description='Generate dataframes from Cobli public API',
     long_description=README,
     long_description_content_type='text/markdown',

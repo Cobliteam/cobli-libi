@@ -67,6 +67,10 @@ This project is in [Pypi](https://pypi.org/manage/project/cobli-libi/releases/).
 
 In order to deploy this project, the first action needed is bump the version in the file `setup.py`.
 
+Then, you will have to install build with this command:
+
+`python3 -m pip install --upgrade build`
+
 After this, you will need to build the project with this command:
 
 `python3 -m build`
