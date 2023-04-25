@@ -17,6 +17,7 @@ Data available in this package:
 - Driver performance
 
 ### Built with
+
 - [Python](https://www.python.org/)
 
 ## Getting Started
@@ -27,7 +28,7 @@ Data available in this package:
 
 ### Installation
 
-```pip install cobli-libi```
+`pip install cobli-libi`
 
 ## Usage
 
@@ -36,9 +37,9 @@ from datetime import datetime, timedelta
 from libi.dataframes import get_devices_data, get_pocs_data, \
     get_costs_data, get_incidents_data, get_checklist_data, \
     get_driver_performance_data, get_vehicle_performance_data
-    
+
 fleet_data = {'Fleet Name': '<fleet_api_key>', 'Another Fleet': '<another_fleet_api_key'}
-start_datetime = datetime.now() - timedelta(days=30)
+start_datetime = datetime.now() - timedelta(days=5)
 end_datetime = datetime.now()
 
 devices = get_devices_data(fleet_data)
@@ -59,6 +60,26 @@ Contributions are what make the open source community such an amazing place to l
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
+
+## Deploy
+
+This project is in [Pypi](https://pypi.org/manage/project/cobli-libi/releases/).
+
+In order to deploy this project, the first action needed is bump the version in the file `setup.py`.
+
+After this, you will need to build the project with this command:
+
+`python3 -m build`
+
+Then, you will have to install twine with this command:
+
+`python3 -m pip install --upgrade twine`.
+
+Finally, you can deploy in pypi using this command:
+
+`python3 -m twine upload dist/*`
+
+The credentials needed for this command are stored in 1Password by the key _Admin-Pypi_.
 
 ## Contact
 
